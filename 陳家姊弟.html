@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陳家龍鳳胎命名鑑定書：Line 分享版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Classic Heritage (Background: #FDFBF7, Sister: #6A8D73, Brother: #526D82, Accent: #B8860B) -->
+    <!-- Application Structure Plan: This SPA is redesigned as a "Vertical Card Feed". Instead of tabs, it presents all 6 cards (5 analysis + 1 elder summary) sequentially. This allows the user to scroll and screenshot each card easily for LINE sharing without UI interaction. -->
+    <!-- Visualization & Content Choices: 
+        1. Zodiac Habitat visualization.
+        2. Five Elements flow diagram.
+        3. Numerology: Deep dive with 3-talent analysis and a Radar Chart.
+        4. Phonology: Shared sound mapping.
+        5. Semantics: Character meaning breakdown.
+        6. Elder Summary: A final card specifically for the grandparents.
+        NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #F4F2EE; /* 稍深一點的底色，突顯卡片 */
+            color: #2D3436;
+            -webkit-font-smoothing: antialiased;
+        }
+        .serif { font-family: 'Noto Serif TC', serif; }
+        .card-feed {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem; /* 卡片間距 */
+            padding-bottom: 5rem;
+        }
+        .sharing-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAE0D5;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .sister-accent { color: #6A8D73; }
+        .brother-accent { color: #526D82; }
+        .sister-bg { background-color: #F1F8F3; }
+        .brother-bg { background-color: #F0F4F7; }
+        .center-link { background-color: #FDF7E7; border: 1px dashed #D4AF37; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            margin-bottom: 0.5rem;
+        }
+        .elder-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FFFDF9 100%);
+            border: 2px solid #D4AF37;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Global Header -->
+    <header class="text-center mb-12">
+        <p class="serif text-[#B8860B] tracking-[0.3em] text-sm mb-3">2026 農曆乙巳年 · 龍鳳吉祥</p>
+        <h1 class="serif text-3xl font-black mb-2">陳家新生兒命名鑑定</h1>
+        <p class="text-gray-400 text-xs">長按下方各別卡片即可截圖分享至 Line 家族群組</p>
+    </header>
+
+    <main class="card-feed">
+
+        <!-- 1. Zodiac Card -->
+        <section class="sharing-card p-6">
+            <div class="text-center border-b pb-4 mb-4">
+                <div class="serif text-lg font-bold text-[#B8860B]">壹 · 生肖姓名學解析</div>
+                <div class="flex justify-between mt-4">
+                    <div class="w-5/12"><span class="block text-[10px] text-gray-400">姊姊</span><span class="serif text-xl font-black sister-accent">陳蕎予</span></div>
+                    <div class="w-2/12 flex items-center justify-center text-gray-200">✕</div>
+                    <div class="w-5/12"><span class="block text-[10px] text-gray-400">弟弟</span><span class="serif text-xl font-black brother-accent">陳嶼森</span></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-3 sister-bg rounded-xl text-center">
+                    <span class="text-3xl block mb-1">🌿</span>
+                    <h4 class="text-xs font-bold sister-accent mb-1">蛇喜草叢</h4>
+                    <p class="text-[10px] text-gray-600">「蕎」字含草部。代表蛇有最佳掩體，出入平安，糧草充足。</p>
+                </div>
+                <div class="p-3 brother-bg rounded-xl text-center">
+                    <span class="text-3xl block mb-1">⛰️</span>
+                    <h4 class="text-xs font-bold brother-accent mb-1">蛇得山林</h4>
+                    <p class="text-[10px] text-gray-600">「嶼」山「森」木。蛇上山頭升格為龍，森林提供領地與權威。</p>
+                </div>
+            </div>
+            <div class="mt-4 p-3 center-link rounded-lg text-center">
+                <p class="text-[11px] font-bold text-[#B8860B]">手足關聯：棲息與升格</p>
+                <p class="text-[10px] text-gray-500 italic">姊姊得草之庇護，弟弟得山之助力，共建陳家福地。</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-300">
+                <span>乙巳蛇年 · 龍鳳胎專刊</span>
+                <span>圖卡 01 / 06</span>
+            </div>
+        </section>
+
+        <!-- 2. Five Elements Card -->
+        <section class="sharing-card p-6">
+            <div class="text-center border-b pb-4 mb-4">
+                <div class="serif text-lg font-bold text-[#B8860B]">貳 · 五行傳承流派</div>
+                <div class="flex justify-between mt-4">
+                    <div class="w-5/12"><span class="serif text-lg font-black sister-accent">陳蕎予</span></div>
+                    <div class="w-2/12 text-gray-200">✕</div>
+                    <div class="w-5/12"><span class="serif text-lg font-black brother-accent">陳嶼森</span></div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3">
+                <div class="p-3 sister-bg rounded-xl flex items-center gap-4">
+                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">木</div>
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold">蕎 · 木之生機</h4>
+                        <p class="text-[10px] text-gray-600">「乙巳」蛇年五行屬木，名字加強木性，旺父母爐火。</p>
+                    </div>
+                </div>
+                <div class="py-1 text-center text-orange-400 text-sm">↓↓ 木能生火 (反哺父母) ↓↓</div>
+                <div class="p-3 brother-bg rounded-xl flex items-center gap-4">
+                    <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">木</div>
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold">森 · 林之繁茂</h4>
+                        <p class="text-[10px] text-gray-600">三木成林，厚植家族基底，象徵資源豐沛。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 p-3 center-link rounded-lg text-center">
+                <p class="text-[11px] font-bold text-[#B8860B]">家族動能：木火相生</p>
+                <p class="text-[10px] text-gray-500">孩子為「木」，生長父母（昱、可）之「火」運，全家家運興隆。</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-300">
+                <span>乙巳蛇年 · 龍鳳胎專刊</span>
+                <span>圖卡 02 / 06</span>
+            </div>
+        </section>
+
+        <!-- 3. Numerology Card -->
+        <section class="sharing-card p-6">
+            <div class="text-center border-b pb-4 mb-4">
+                <div class="serif text-lg font-bold text-[#B8860B]">參 · 三才五格深度鑑定</div>
+                <div class="flex justify-between mt-4 px-2">
+                    <div class="w-5/12 text-[10px] space-y-1">
+                        <div class="flex justify-between border-b"><span>天格 12</span><span class="sister-accent">木</span></div>
+                        <div class="flex justify-between border-b"><span>人格 27</span><span class="sister-accent">金</span></div>
+                        <div class="flex justify-between border-b"><span>地格 20</span><span class="sister-accent">水</span></div>
+                        <div class="flex justify-between bg-green-50 px-1 font-bold"><span>總格 31</span><span class="text-red-500">大吉</span></div>
+                    </div>
+                    <div class="w-1/12 text-gray-200">|</div>
+                    <div class="w-5/12 text-[10px] space-y-1">
+                        <div class="flex justify-between border-b"><span>天格 12</span><span class="brother-accent">木</span></div>
+                        <div class="flex justify-between border-b"><span>人格 28</span><span class="brother-accent">金</span></div>
+                        <div class="flex justify-between border-b"><span>地格 29</span><span class="brother-accent">水</span></div>
+                        <div class="flex justify-between bg-blue-50 px-1 font-bold"><span>總格 40</span><span class="text-blue-500">吉</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="mainRadarChart"></canvas>
+            </div>
+            <div class="p-3 center-link rounded-lg text-center">
+                <p class="text-[11px] font-bold text-[#B8860B] mb-1">三才配置：木-金-水 (大吉)</p>
+                <p class="text-[10px] text-gray-600 leading-tight">人格「金」生「水」，象徵才華洋溢且能澤被後輩。雖具備獨立競爭力，但內在溫潤，晚年極佳。</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-300">
+                <span>乙巳蛇年 · 龍鳳胎專刊</span>
+                <span>圖卡 03 / 06</span>
+            </div>
+        </section>
+
+        <!-- 4. Phonology Card -->
+        <section class="sharing-card p-6">
+            <div class="text-center border-b pb-4 mb-4">
+                <div class="serif text-lg font-bold text-[#B8860B]">肆 · 音韻聲靈學解析</div>
+                <div class="flex justify-between mt-4">
+                    <div class="w-5/12"><span class="serif text-lg font-black sister-accent">陳蕎予</span></div>
+                    <div class="w-2/12 text-gray-200">✕</div>
+                    <div class="w-5/12"><span class="serif text-lg font-black brother-accent">陳嶼森</span></div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div class="p-3 border rounded-xl">
+                    <h4 class="text-xs font-bold mb-2">● 姊姊：陳 蕎 <span class="text-lg underline">予 (Yǔ)</span></h4>
+                    <p class="text-[10px] text-gray-600">讀音開闊，寓意「給予、分享」。聽感溫柔而具備包容力。</p>
+                </div>
+                <div class="p-3 border rounded-xl">
+                    <h4 class="text-xs font-bold mb-2">● 弟弟：陳 <span class="text-lg underline">嶼 (Yǔ)</span> 森</h4>
+                    <p class="text-[10px] text-gray-600">讀音深沈，寓意「厚重、守護」。聽感踏實且具備穩定感。</p>
+                </div>
+            </div>
+            <div class="mt-4 p-3 center-link rounded-lg text-center">
+                <p class="text-[11px] font-bold text-[#B8860B]">音韻對照：交叉重疊</p>
+                <p class="text-[10px] text-gray-500 italic">共享 Yǔ 音但位置錯開。象徵手足「你中有我」，心靈連動卻人格獨立。</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-300">
+                <span>乙巳蛇年 · 龍鳳胎專刊</span>
+                <span>圖卡 04 / 06</span>
+            </div>
+        </section>
+
+        <!-- 5. Semantics Card -->
+        <section class="sharing-card p-6">
+            <div class="text-center border-b pb-4 mb-4">
+                <div class="serif text-lg font-bold text-[#B8860B]">伍 · 符號語義學解析</div>
+                <div class="flex justify-between mt-4">
+                    <div class="w-5/12"><span class="serif text-lg font-black sister-accent">陳蕎予</span></div>
+                    <div class="w-2/12 text-gray-200">✕</div>
+                    <div class="w-5/12"><span class="serif text-lg font-black brother-accent">陳嶼森</span></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-2">
+                    <div class="p-2 border-l-2 border-green-500 bg-gray-50">
+                        <span class="block text-xs font-bold">蕎：自立</span>
+                        <p class="text-[9px] text-gray-500 leading-tight">野生作物，生命力強韌，不需依賴祖蔭成材。</p>
+                    </div>
+                    <div class="p-2 border-l-2 border-green-500 bg-gray-50">
+                        <span class="block text-xs font-bold">予：反哺</span>
+                        <p class="text-[9px] text-gray-500 leading-tight">懂得回饋，在成功之後心繫家庭，反饋親恩。</p>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="p-2 border-l-2 border-blue-500 bg-gray-50">
+                        <span class="block text-xs font-bold">嶼：安定</span>
+                        <p class="text-[9px] text-gray-500 leading-tight">心如磐石，擁有獨立見解，不隨波逐流。</p>
+                    </div>
+                    <div class="p-2 border-l-2 border-blue-500 bg-gray-50">
+                        <span class="block text-xs font-bold">森：守護</span>
+                        <p class="text-[9px] text-gray-500 leading-tight">內在豐富，是家中最穩固的支柱與森林。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 p-3 center-link rounded-lg text-center">
+                <p class="text-[11px] font-bold text-[#B8860B]">精神核心：自立與愛</p>
+                <p class="text-[10px] text-gray-500 italic">姊姊負責拓展與分享，弟弟負責守護與紮根。</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-300">
+                <span>乙巳蛇年 · 龍鳳胎專刊</span>
+                <span>圖卡 05 / 06</span>
+            </div>
+        </section>
+
+        <!-- 6. Elder Summary Card -->
+        <section class="sharing-card elder-card p-8">
+            <div class="text-center mb-6">
+                <div class="serif text-xl font-bold text-[#B8860B] mb-2">致 祖父母：命名總結</div>
+                <div class="w-16 h-0.5 bg-[#D4AF37] mx-auto"></div>
+            </div>
+            <div class="space-y-5 text-gray-800">
+                <div class="flex gap-3">
+                    <span class="text-[#D4AF37] font-bold">1.</span>
+                    <p class="text-sm leading-relaxed"><span class="font-bold">生肖大吉：</span>兩名皆得「山林草叢」之護，蛇寶寶在這種環境下最是好養、平安，一生不愁吃穿。</p>
+                </div>
+                <div class="flex gap-3">
+                    <span class="text-[#D4AF37] font-bold">2.</span>
+                    <p class="text-sm leading-relaxed"><span class="font-bold">旺家興運：</span>名字屬「木」，父母屬「火」。木能生火，這對龍鳳胎是來「生旺」陳家的，能帶動家運紅火。</p>
+                </div>
+                <div class="flex gap-3">
+                    <span class="text-[#D4AF37] font-bold">3.</span>
+                    <p class="text-sm leading-relaxed"><span class="font-bold">反哺家門：</span>特選「予」字與「森」字。姊姊懂得報恩分享，弟弟厚重守家，讓長輩放心孩子飛得再高也會心繫故里。</p>
+                </div>
+                <div class="pt-4 text-center">
+                    <p class="serif italic text-[#B8860B] text-sm">願陳家後代：福壽雙全，平安成材。</p>
+                </div>
+            </div>
+            <div class="mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-400">
+                <span class="font-bold tracking-widest">乙巳年 · 龍鳳吉祥</span>
+                <span>結語圖卡 06 / 06</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Visual -->
+    <footer class="text-center pb-20 no-print">
+        <div class="inline-block px-8 py-3 bg-[#2c3e50] text-white rounded-full text-xs font-bold shadow-xl">
+            陳氏家族命名委員會 敬製
+        </div>
+    </footer>
+
+    <script>
+        function initChart() {
+            const ctx = document.getElementById('mainRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['領導力', '開創性', '圓融度', '家庭感', '才智'],
+                    datasets: [
+                        {
+                            label: '陳蕎予',
+                            data: [85, 80, 95, 90, 80],
+                            backgroundColor: 'rgba(106, 141, 115, 0.2)',
+                            borderColor: '#6A8D73',
+                            borderWidth: 2,
+                            pointRadius: 0
+                        },
+                        {
+                            label: '陳嶼森',
+                            data: [90, 95, 75, 85, 95],
+                            backgroundColor: 'rgba(82, 109, 130, 0.2)',
+                            borderColor: '#526D82',
+                            borderWidth: 2,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: false },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false },
+                            pointLabels: { font: { size: 10, family: "'Noto Sans TC'" } }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        window.onload = initChart;
+    </script>
+</body>
+</html>
