@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寶寶泡奶與冷卻助手 Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .tab-active {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            background-color: #f1f7ff;
+        }
+        .hidden-tab { display: none; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="min-h-screen flex items-start justify-center p-4 pt-4 md:pt-10">
+
+    <div class="w-full max-w-lg">
+        <!-- Navigation Tabs -->
+        <div class="flex bg-white rounded-t-2xl border-b border-gray-100 overflow-hidden shadow-sm">
+            <button onclick="switchTab('formula')" id="tab-formula" class="flex-1 py-4 text-xs font-bold transition-all flex flex-col items-center gap-1 tab-active">
+                <i data-lucide="baby" class="w-5 h-5"></i><span>比例溫降</span>
+            </button>
+            <button onclick="switchTab('mix')" id="tab-mix" class="flex-1 py-4 text-xs font-bold transition-all flex flex-col items-center gap-1 text-gray-400">
+                <i data-lucide="droplets" class="w-5 h-5"></i><span>調溫助手</span>
+            </button>
+            <button onclick="switchTab('cooling')" id="tab-cooling" class="flex-1 py-4 text-xs font-bold transition-all flex flex-col items-center gap-1 text-gray-400">
+                <i data-lucide="line-chart" class="w-5 h-5"></i><span>冷卻模擬</span>
+            </button>
+        </div>
+
+        <div class="card p-6 md:p-8 rounded-t-none">
+            
+            <!-- SECTION 1: Formula -->
+            <div id="section-formula" class="space-y-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="bg-blue-100 p-2 rounded-full text-blue-600"><i data-lucide="calculator" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-gray-800">泡奶比例與溫降</h2>
+                </div>
+                <div class="flex bg-gray-100 p-1 rounded-xl">
+                    <button onclick="setInputMode('water')" id="mode-water" class="flex-1 py-2 text-sm font-medium rounded-lg bg-white shadow-sm text-blue-600">以水量算</button>
+                    <button onclick="setInputMode('scoop')" id="mode-scoop" class="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500">以匙數算</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">奶粉比例</label>
+                        <select id="ratio-select" onchange="updateFormula()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold focus:border-blue-300 outline-none">
+                            <option value="30">30ml/匙</option><option value="60">60ml/匙</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">初始水溫 (°C)</label>
+                        <input type="number" id="init-temp" value="70" oninput="updateFormula()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                </div>
+                <div class="relative">
+                    <label id="input-label" class="block text-sm font-medium text-gray-600 mb-2">準備注入水量 (ml)</label>
+                    <input type="number" id="main-input" value="120" oninput="updateFormula()" class="block w-full pl-4 pr-12 py-4 border-2 border-blue-500 rounded-2xl text-3xl font-bold text-gray-800 outline-none">
+                    <span id="input-unit" class="absolute right-4 bottom-4 text-gray-400 font-bold">ml</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-blue-600 rounded-2xl p-4 text-white text-center">
+                        <p class="text-[10px] opacity-80 font-bold uppercase">應加奶粉</p>
+                        <p class="text-2xl font-black"><span id="res-scoops">4</span><span class="text-sm font-normal ml-1">匙</span></p>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center">
+                        <p class="text-[10px] text-indigo-400 font-bold uppercase">泡好後溫度</p>
+                        <p class="text-2xl font-black text-indigo-600"><span id="res-final-temp">66</span>°C</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Mixing -->
+            <div id="section-mix" class="space-y-5 hidden-tab">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="bg-orange-100 p-2 rounded-full text-orange-600"><i data-lucide="droplets" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-gray-800">冷熱水調溫助手</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1">熱水 (°C)</label>
+                        <input type="number" id="mix-hot-t" value="100" oninput="updateMix()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1">冷水 (°C)</label>
+                        <input type="number" id="mix-cold-t" value="25" oninput="updateMix()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1">目標總量 (ml)</label>
+                        <input type="number" id="mix-vol" value="120" oninput="updateMix()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1">目標水溫 (°C)</label>
+                        <input type="number" id="mix-target-t" value="70" oninput="updateMix()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                </div>
+                <div class="bg-orange-500 rounded-2xl p-6 text-white text-center shadow-lg">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="border-r border-orange-400/50">
+                            <p class="text-xs opacity-80 mb-1">需加热水</p>
+                            <p class="text-3xl font-black"><span id="mix-res-hot">72</span><span class="text-sm font-normal ml-1">ml</span></p>
+                        </div>
+                        <div>
+                            <p class="text-xs opacity-80 mb-1">需加冷水</p>
+                            <p class="text-3xl font-black"><span id="mix-res-cold">48</span><span class="text-sm font-normal ml-1">ml</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Cooling Simulation -->
+            <div id="section-cooling" class="space-y-5 hidden-tab">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="bg-purple-100 p-2 rounded-full text-purple-600"><i data-lucide="line-chart" class="w-5 h-5"></i></div>
+                    <h2 class="text-xl font-bold text-gray-800">降溫曲線模擬</h2>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">奶粉體積 (ml)</label>
+                        <input type="number" id="cool-vol" value="120" oninput="runCoolingSim()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">瓶身材質</label>
+                        <select id="cool-material" onchange="runCoolingSim()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                            <option value="glass">玻璃 (散熱快)</option>
+                            <option value="ppsu">PPSU (散熱慢)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">瓶身直徑 (cm)</label>
+                        <input type="number" id="cool-dia" value="6" oninput="runCoolingSim()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1">初始奶溫 (°C)</label>
+                        <input type="number" id="cool-init-t" value="70" oninput="runCoolingSim()" class="w-full px-3 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 font-semibold">
+                    </div>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
+                    <label class="block text-xs font-bold text-gray-500 uppercase">冷卻環境</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="radio" name="cool-method" value="air" checked onchange="toggleCoolingInput(); runCoolingSim()" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                            <span class="text-sm font-medium text-gray-700">空氣冷卻</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="radio" name="cool-method" value="water" onchange="toggleCoolingInput(); runCoolingSim()" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                            <span class="text-sm font-medium text-gray-700">隔水降溫</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label id="env-temp-label" class="block text-[10px] font-bold text-gray-400 mb-1">環境氣溫 (°C)</label>
+                        <input type="number" id="cool-env-t" value="25" oninput="runCoolingSim()" class="w-full px-3 py-2 border-2 border-white rounded-lg shadow-sm font-semibold outline-none focus:border-purple-200">
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="relative h-64 w-full">
+                    <canvas id="coolingChart"></canvas>
+                </div>
+
+                <div id="cooling-result" class="text-center p-3 bg-purple-50 rounded-xl border border-purple-100">
+                    <p class="text-xs text-purple-700 font-medium">預計降至 <span class="font-bold">40°C</span> 需要 <span id="time-to-40" class="text-lg font-black">--</span> 分鐘</p>
+                </div>
+            </div>
+
+            <!-- Global Tips -->
+            <div class="mt-6 bg-gray-50 rounded-2xl p-4 flex gap-3 text-gray-600 text-xs leading-relaxed border border-gray-100">
+                <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5 text-blue-500"></i>
+                <div id="tip-text">
+                    根據 WHO 指引，建議使用 70°C 水溫泡奶以確保無菌。降溫曲線僅供參考，餵食前請務必在手背內側滴奶確認溫度。
+                </div>
+            </div>
+        </div>
+        <p class="text-center text-gray-400 text-[10px] mt-6 uppercase tracking-widest font-medium italic">Powered by Physics & Love</p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let currentTab = 'formula';
+        let currentFormulaMode = 'water';
+        let coolingChart = null;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            ['formula', 'mix', 'cooling'].forEach(t => {
+                document.getElementById(`tab-${t}`).className = `flex-1 py-4 text-xs font-bold transition-all flex flex-col items-center gap-1 ${t === tab ? 'tab-active' : 'text-gray-400'}`;
+                document.getElementById(`section-${t}`).className = t === tab ? 'space-y-6' : 'hidden-tab';
+            });
+            if (tab === 'cooling') {
+                setTimeout(runCoolingSim, 100);
+            }
+        }
+
+        // --- Formula Logic ---
+        function setInputMode(mode) {
+            currentFormulaMode = mode;
+            document.getElementById('mode-water').className = mode === 'water' ? 'flex-1 py-2 text-sm font-medium rounded-lg bg-white shadow-sm text-blue-600' : 'flex-1 py-2 text-sm font-medium rounded-lg text-gray-500';
+            document.getElementById('mode-scoop').className = mode === 'scoop' ? 'flex-1 py-2 text-sm font-medium rounded-lg bg-white shadow-sm text-blue-600' : 'flex-1 py-2 text-sm font-medium rounded-lg text-gray-500';
+            document.getElementById('input-label').innerText = mode === 'water' ? "準備注入水量 (ml)" : "欲沖泡奶粉匙數";
+            document.getElementById('input-unit').innerText = mode === 'water' ? "ml" : "匙";
+            updateFormula();
+        }
+
+        function updateFormula() {
+            const ratio = parseFloat(document.getElementById('ratio-select').value);
+            const val = parseFloat(document.getElementById('main-input').value) || 0;
+            const tWater = parseFloat(document.getElementById('init-temp').value) || 0;
+            let water = 0, scoops = 0;
+            if (currentFormulaMode === 'water') { water = val; scoops = water / ratio; }
+            else { scoops = val; water = scoops * ratio; }
+
+            const cw = 4.18, cp = 1.5, gps = ratio === 30 ? 4.5 : 9;
+            const tPowder = 25;
+            let tFinal = tWater;
+            if (water > 0 && scoops > 0) {
+                tFinal = (water * cw * tWater + scoops * gps * cp * tPowder) / (water * cw + scoops * gps * cp);
+            }
+            document.getElementById('res-scoops').innerText = scoops.toFixed(1);
+            document.getElementById('res-final-temp').innerText = tFinal.toFixed(1);
+        }
+
+        // --- Mix Logic ---
+        function updateMix() {
+            const th = parseFloat(document.getElementById('mix-hot-t').value);
+            const tc = parseFloat(document.getElementById('mix-cold-t').value);
+            const vt = parseFloat(document.getElementById('mix-vol').value);
+            const tt = parseFloat(document.getElementById('mix-target-t').value);
+            if (th <= tc || tt <= tc || tt >= th) {
+                document.getElementById('mix-res-hot').innerText = "--";
+                document.getElementById('mix-res-cold').innerText = "--";
+                return;
+            }
+            const vh = vt * (tt - tc) / (th - tc);
+            document.getElementById('mix-res-hot').innerText = Math.round(vh);
+            document.getElementById('mix-res-cold').innerText = Math.round(vt - vh);
+        }
+
+        // --- Cooling Simulation Logic ---
+        function toggleCoolingInput() {
+            const method = document.querySelector('input[name="cool-method"]:checked').value;
+            document.getElementById('env-temp-label').innerText = method === 'air' ? "環境氣溫 (°C)" : "冷水水溫 (°C)";
+        }
+
+        function runCoolingSim() {
+            const vol = parseFloat(document.getElementById('cool-vol').value) || 120;
+            const material = document.getElementById('cool-material').value;
+            const dia = parseFloat(document.getElementById('cool-dia').value) || 6;
+            const tStart = parseFloat(document.getElementById('cool-init-t').value) || 70;
+            const tEnv = parseFloat(document.getElementById('cool-env-t').value) || 25;
+            const method = document.querySelector('input[name="cool-method"]:checked').value;
+
+            // 物理模型參數設定
+            // 計算表面積 (圓柱體估算)
+            const radius = dia / 2;
+            const height = vol / (Math.PI * radius * radius); // cm
+            const area = (2 * Math.PI * radius * height + Math.PI * radius * radius) / 10000; // 換算成 m^2
+            
+            // 熱傳導係數 h (W/m^2K)
+            // 空氣自然對流約 10-15, 水冷（靜置）約 200-500
+            let h = (method === 'air' ? 12 : 350);
+            
+            // 材質影響係數 (PPSU 熱傳導率遠低於玻璃)
+            if (material === 'ppsu') h *= 0.6; 
+            
+            // 比熱容 (J/kg·K) & 質量 (kg)
+            const c = 4180; 
+            const mass = vol / 1000;
+
+            // 牛頓冷卻公式: T(t) = Tenv + (Tstart - Tenv) * e^(-kt)
+            // k = (h * Area) / (mass * c)
+            const k = (h * area) / (mass * c);
+            
+            const labels = [];
+            const data = [];
+            let timeTo40 = -1;
+
+            for (let min = 0; min <= 20; min += 1) {
+                const sec = min * 60;
+                const temp = tEnv + (tStart - tEnv) * Math.exp(-k * sec);
+                labels.push(`${min}分`);
+                data.push(temp.toFixed(1));
+                if (timeTo40 === -1 && temp <= 40.5) timeTo40 = min;
+            }
+
+            document.getElementById('time-to-40').innerText = timeTo40 === -1 ? ">20" : timeTo40;
+
+            renderChart(labels, data);
+        }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('coolingChart').getContext('2d');
+            if (coolingChart) coolingChart.destroy();
+            
+            coolingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '奶水溫度 (°C)',
+                        data: data,
+                        borderColor: '#9333ea',
+                        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#9333ea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            min: 20, 
+                            max: 80,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化
+        updateFormula();
+        updateMix();
+    </script>
+</body>
+</html>
