@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台中頂級滿月家宴互動評比系統</title>
+    <!-- Tailwind CSS for modern look -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --color-bg: #FDFCF7;
+            --color-primary: #B89047;
+            --color-primary-dark: #916F33;
+            --color-text: #2C2C2C;
+            --color-accent: #5C5549;
+            --color-card-bg: #FFFFFF;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .serif {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        .tab-active {
+            border-bottom: 4px solid var(--color-primary);
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .luxury-card {
+            background: var(--color-card-bg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #EAE3D2;
+        }
+
+        .luxury-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(184, 144, 71, 0.08);
+            border-color: var(--color-primary);
+        }
+
+        /* 隱藏滾動條但保持功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 金色光暈按鈕 */
+        .btn-gold-premium {
+            background: linear-gradient(135deg, #C5A059 0%, #9E7D3B 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-gold-premium:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 15px rgba(197, 160, 89, 0.35);
+        }
+    </style>
+</head>
+<body class="p-0 m-0">
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-[#EAE3D2] py-14 px-6 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="relative z-10">
+            <span class="text-xs uppercase tracking-[0.3em] text-[#B89047] font-semibold mb-3 block">Premium Selection</span>
+            <h1 class="serif text-4xl md:text-5xl font-bold mb-4 tracking-widest text-[#2C2C2C]">台中頂級滿月家宴</h1>
+            <p class="text-base md:text-lg text-[#5C5549] font-light tracking-widest uppercase">Four Luxury Banquet Venues Comparison System</p>
+            <div class="mt-6 flex justify-center space-x-2">
+                <span class="h-[2px] w-14 bg-[#B89047]"></span>
+                <span class="h-[2px] w-4 bg-[#E5E1D8]"></span>
+                <span class="h-[2px] w-2 bg-[#E5E1D8]"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Introduction Section -->
+    <section class="max-w-4xl mx-auto px-6 py-12 text-center">
+        <p class="text-[#2C2C2C] leading-loose text-lg font-light">
+            本互動評比系統專為追求極致奢華、重視長輩面子，並體貼媽媽與寶寶舒適度的家庭所設計。<br>
+            我們深度解構了台中最富盛名的四間指標性餐廳：<span class="font-semibold text-[#B89047]">頂粵吉品、與玥樓、明娟樓、山与</span>，協助您輕鬆做出完美決策。
+        </p>
+    </section>
+
+    <!-- Interactive Budget Estimator -->
+    <section class="max-w-6xl mx-auto px-6 mb-12">
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-[#EAE3D2] relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#FDFCF7] rounded-full filter blur-xl opacity-50 -mr-10 -mt-10"></div>
+            <div class="relative z-10">
+                <h3 class="serif text-2xl font-bold mb-2 text-[#2C2C2C] flex items-center gap-2">
+                    <span>🧮</span> 家宴預算與人數動態試算器
+                </h3>
+                <p class="text-[#5C5549] text-sm mb-6">輸入您預計的人數與想要的餐飲型態，即時為您估算各大奢華餐廳的消費總額。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-[#5C5549] uppercase tracking-wider mb-2">預計出席總人數</label>
+                        <div class="flex items-center border border-[#EAE3D2] rounded-xl overflow-hidden bg-[#FDFCF7]">
+                            <button onclick="adjustGuests(-1)" class="px-4 py-3 hover:bg-gray-100 text-lg font-bold text-[#B89047] transition">-</button>
+                            <input type="number" id="input-guests" value="10" min="2" max="100" class="w-full text-center bg-transparent border-none focus:outline-none font-bold text-lg" onchange="calculateBudget()">
+                            <button onclick="adjustGuests(1)" class="px-4 py-3 hover:bg-gray-100 text-lg font-bold text-[#B89047] transition">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#5C5549] uppercase tracking-wider mb-2">主要餐飲型態</label>
+                        <select id="select-style" onchange="calculateBudget()" class="w-full border border-[#EAE3D2] rounded-xl p-3 bg-[#FDFCF7] font-semibold text-[#2C2C2C] focus:outline-none focus:border-[#B89047] transition">
+                            <option value="table_classic">中式經典桌菜 (以10人桌計算)</option>
+                            <option value="table_luxury">中式頂級奢華桌菜 (以10人桌計算)</option>
+                            <option value="individual_set">個人精緻位上套餐 (每位計算)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#5C5549] uppercase tracking-wider mb-2">產後媽媽專屬照料需求</label>
+                        <select id="select-mom" onchange="calculateMomTip()" class="w-full border border-[#EAE3D2] rounded-xl p-3 bg-[#FDFCF7] font-semibold text-[#2C2C2C] focus:outline-none focus:border-[#B89047] transition">
+                            <option value="lactation">媽媽正在哺乳中 (需避開退奶/人參/韭菜)</option>
+                            <option value="postpartum">媽媽仍在坐月子 (需溫補、避冰冷/酒精)</option>
+                            <option value="none">無特殊飲食避忌</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Live Results Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-dashed border-[#EAE3D2]">
+                    <div class="bg-[#FDFCF7] p-4 rounded-2xl border border-[#EAE3D2] text-center">
+                        <p class="text-xs text-[#5C5549] mb-1 font-semibold">頂粵吉品 估計</p>
+                        <p id="calc-dingyue" class="text-xl font-bold text-[#B89047]">NT$ 31,680</p>
+                        <span class="text-[10px] text-gray-400">含10%服務費</span>
+                    </div>
+                    <div class="bg-[#FDFCF7] p-4 rounded-2xl border border-[#EAE3D2] text-center">
+                        <p class="text-xs text-[#5C5549] mb-1 font-semibold">與玥樓 估計</p>
+                        <p id="calc-yuebar" class="text-xl font-bold text-[#B89047]">NT$ 25,080</p>
+                        <span class="text-[10px] text-gray-400">含10%服務費</span>
+                    </div>
+                    <div class="bg-[#FDFCF7] p-4 rounded-2xl border border-[#EAE3D2] text-center">
+                        <p class="text-xs text-[#5C5549] mb-1 font-semibold">明娟樓 估計</p>
+                        <p id="calc-mingjuan" class="text-xl font-bold text-[#B89047]">NT$ 28,380</p>
+                        <span class="text-[10px] text-gray-400">含10%服務費</span>
+                    </div>
+                    <div class="bg-[#FDFCF7] p-4 rounded-2xl border border-[#EAE3D2] text-center">
+                        <p class="text-xs text-[#5C5549] mb-1 font-semibold">山与 (私廚) 估計</p>
+                        <p id="calc-shanyu" class="text-xl font-bold text-[#B89047]">NT$ 49,500</p>
+                        <span class="text-[10px] text-gray-400">含10%服務費</span>
+                    </div>
+                </div>
+                
+                <!-- Mom Tips Alert Box -->
+                <div id="mom-tip-box" class="mt-4 p-4 bg-[#FDFCF7] rounded-xl border border-l-4 border-l-[#B89047] border-[#EAE3D2] text-sm text-[#5C5549] flex items-start gap-3">
+                    <span class="text-lg">🤱</span>
+                    <div>
+                        <p class="font-bold text-[#2C2C2C] mb-1">產後媽媽貼心叮嚀</p>
+                        <p id="mom-tip-text">在確定桌菜菜單時，上述餐廳皆可為媽媽提供客製化的「位上個人湯品及甜品」替換（如避開韭菜、人參、麥芽，改用溫潤滋補高湯），建議在訂席時主動提出。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualization Dashboard -->
+    <section class="max-w-6xl mx-auto px-6 py-10 bg-white rounded-3xl shadow-sm border border-[#EAE3D2] mb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="serif text-2xl font-bold mb-2 border-l-4 border-[#B89047] pl-4">指標性數據對比</h2>
+                <p class="text-gray-500 mb-8 ml-5 text-sm">透過綜合維度分析與桌席預算區間，直觀掌握各餐廳的客觀優勢。</p>
+                
+                <div class="chart-container mb-12">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="priceRangeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <h3 class="serif text-xl font-bold text-center lg:text-left mb-2 text-[#2C2C2C]">💡 長輩決策快速過濾器</h3>
+                <p class="text-gray-500 text-xs text-center lg:text-left mb-6">點選下方長輩或家族最看重的核心考量點，獲得專屬的場地提案與優勢解析：</p>
+                <div class="bg-[#FDFCF7] p-6 rounded-2xl border border-[#EAE3D2] space-y-4">
+                    <p class="font-bold text-[#2C2C2C] text-sm">第一優先考慮的是？</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="filter-container">
+                        <button onclick="applyFilter('luxury')" class="p-3 bg-white border border-[#EAE3D2] rounded-xl text-xs hover:border-[#B89047] hover:bg-amber-50/20 text-[#2C2C2C] font-semibold text-left transition flex items-center gap-2">
+                            <span>🏛️</span> 極致尊榮與金碧排場
+                        </button>
+                        <button onclick="applyFilter('fame')" class="p-3 bg-white border border-[#EAE3D2] rounded-xl text-xs hover:border-[#B89047] hover:bg-amber-50/20 text-[#2C2C2C] font-semibold text-left transition flex items-center gap-2">
+                            <span>🏆</span> 台中名氣與漂亮拍照
+                        </button>
+                        <button onclick="applyFilter('friendly')" class="p-3 bg-white border border-[#EAE3D2] rounded-xl text-xs hover:border-[#B89047] hover:bg-amber-50/20 text-[#2C2C2C] font-semibold text-left transition flex items-center gap-2">
+                            <span>🤱</span> 極致母嬰便利與硬體
+                        </button>
+                        <button onclick="applyFilter('privacy')" class="p-3 bg-white border border-[#EAE3D2] rounded-xl text-xs hover:border-[#B89047] hover:bg-amber-50/20 text-[#2C2C2C] font-semibold text-left transition flex items-center gap-2">
+                            <span>🤐</span> 豪宅私密與無干擾
+                        </button>
+                    </div>
+                    <div id="filter-result" class="mt-4 p-4 bg-white rounded-xl border border-dashed border-[#B89047] hidden">
+                        <p class="text-[#B89047] font-bold text-sm mb-1">✨ 推薦優先考量：</p>
+                        <p id="recommended-restaurant" class="text-xs text-[#2C2C2C] leading-relaxed"></p>
+                        <button onclick="scrollToExplorer()" class="mt-2 text-xs font-semibold text-[#B89047] hover:underline flex items-center gap-1">查看此餐廳詳細檔案 ➔</button>
+                    </div>
+                </div>
+                <div class="text-[11px] text-gray-400 italic px-2 leading-relaxed">
+                    * 註：評分數據基於 2026 最新市場口碑、實地動線測試及平均餐飲水準。所有列示價格均需加收 10% 服務費。
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Restaurant Detail Explorer -->
+    <section id="explorer" class="max-w-6xl mx-auto px-6 py-12">
+        <h2 class="serif text-3xl text-center font-bold mb-2">🏢 餐廳深度檔案</h2>
+        <p class="text-center text-gray-500 mb-10 text-sm">點選下方分頁，查看各家餐廳的詳盡特色、優缺點分析與精準價位區間</p>
+
+        <!-- Tabs Navigation -->
+        <div class="flex overflow-x-auto no-scrollbar justify-start md:justify-center border-b border-[#EAE3D2] mb-10">
+            <button onclick="showTab('dingyue')" id="btn-dingyue" class="px-8 py-4 whitespace-nowrap tab-active text-sm tracking-wider transition-all">頂粵吉品 (宮殿國宴)</button>
+            <button onclick="showTab('yuebar')" id="btn-yuebar" class="px-8 py-4 whitespace-nowrap text-sm tracking-wider transition-all">與玥樓 (豪門庭園)</button>
+            <button onclick="showTab('mingjuan')" id="btn-mingjuan" class="px-8 py-4 whitespace-nowrap text-sm tracking-wider transition-all">明娟樓 (五星母嬰)</button>
+            <button onclick="showTab('shanyu')" id="btn-shanyu" class="px-8 py-4 whitespace-nowrap text-sm tracking-wider transition-all">山与 (頂級私廚)</button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="tab-contents">
+            
+            <!-- Ding Yue Ji Pin -->
+            <div id="content-dingyue" class="space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-8 rounded-2xl border border-[#EAE3D2] relative">
+                            <span class="absolute top-4 right-4 bg-amber-50 text-[#B89047] text-xs font-bold px-3 py-1 rounded-full">中台灣奢華天花板</span>
+                            <h3 class="serif text-2xl font-bold mb-4 text-[#B89047] flex items-center gap-2">
+                                <span>🏛️</span> 頂粵吉品 ‧ 宮殿級大氣排場
+                            </h3>
+                            <p class="text-[#2C2C2C] leading-relaxed mb-6 text-sm">
+                                頂粵吉品並非依附於大飯店內，而是斥資數億台幣打造的獨立中餐宮殿。由台北世貿聯誼社的前行政總主廚領軍，專攻頂級潮粵料理與國宴級手藝。極其富麗堂皇的包廂與專屬管家分菜服務，能帶給長輩無與倫比的社會地位感與滿足度。
+                            </p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🚪</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">19間極致尊榮大包廂</h4>
+                                        <p class="text-[11px] text-[#5C5549]">每間均設有專屬洗手間與獨立進口精緻餐具。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🚗</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">極隱密尊榮動線</h4>
+                                        <p class="text-[11px] text-[#5C5549]">專屬地下停車場電梯直達包廂，媽媽寶寶免吹風。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🍷</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">專業一對一管家服務</h4>
+                                        <p class="text-[11px] text-[#5C5549]">細緻的桌邊分菜服務，用餐尊榮感無可比擬。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🥣</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">必點大菜：砂鍋花膠雞湯</h4>
+                                        <p class="text-[11px] text-[#5C5549]">金黃濃稠的老母雞精華，產後媽媽最好的溫補燉品。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-[#EAE3D2] pt-4">
+                                <h4 class="font-bold text-sm mb-2 text-[#2C2C2C]">📊 優缺點直白分析</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div class="text-emerald-700 bg-emerald-50/50 p-3 rounded-lg"><strong class="block mb-1">✔️ 優勢</strong> 裝潢與氣派感全台頂尖、服務極細膩、隱私度極好（電梯直達包廂）。</div>
+                                    <div class="text-amber-700 bg-amber-50/50 p-3 rounded-lg"><strong class="block mb-1">⚠️ 注意</strong> 包廂保證低消門檻高、無飯店的公共哺乳室配套。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pricing Card -->
+                    <div class="bg-[#B89047] text-white p-8 rounded-2xl flex flex-col justify-between shadow-lg relative">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:12px_12px] rounded-2xl"></div>
+                        <div class="relative z-10">
+                            <h4 class="serif text-xl mb-6 border-b border-white/20 pb-2">預算方案參考</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">經典起桌桌席 (10位)</p>
+                                    <p class="text-2xl font-bold">NT$ 28,800 + 10%</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">極致奢華桌席</p>
+                                    <p class="text-2xl font-bold">NT$ 38,800 - 58,800+</p>
+                                    <span class="text-[10px] opacity-75">* 含招牌脆皮金磚燒乳豬</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">精緻個人套餐</p>
+                                    <p class="text-lg">NT$ 2,880 - 15,800 / 位</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('頂粵吉品訂席資訊 - 台中市西屯區市政路580號 - 電話: (04) 2253-4688')" class="mt-8 py-3 bg-white text-[#B89047] font-bold rounded-xl hover:bg-gray-100 transition shadow relative z-10 text-xs">複製聯繫電話與地址</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yue Bar -->
+            <div id="content-yuebar" class="space-y-8 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-8 rounded-2xl border border-[#EAE3D2] relative">
+                            <span class="absolute top-4 right-4 bg-amber-50 text-[#B89047] text-xs font-bold px-3 py-1 rounded-full">台中頂級粵菜名牌</span>
+                            <h3 class="serif text-2xl font-bold mb-4 text-[#B89047] flex items-center gap-2">
+                                <span>🌸</span> 與玥樓 ‧ 豪門庭園地標
+                            </h3>
+                            <p class="text-[#2C2C2C] leading-relaxed mb-6 text-sm">
+                                與玥樓是台中名氣最響亮、老字號的頂級中餐廳地標。其現代清水模外觀與周圍的大片落羽松水池造景交融，在豪邁大氣中展現極高的美學深度。招牌果木窯烤片皮鴨伴隨桌邊片鴨秀，極富視覺張力，非常適合重視熱鬧、想留下美麗全家福照的家宴。
+                            </p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🦆</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">招牌烤鴨與精品港點</h4>
+                                        <p class="text-[11px] text-[#5C5549]">一鴨二吃秀與金箔燕窩蝦餃皇，極具視覺焦點。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🌿</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">唯美落羽松大合照</h4>
+                                        <p class="text-[11px] text-[#5C5549]">極其典雅的庭園造景，非常適合全家正裝合照留念。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🅿️</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">超寬敞專屬平面車位</h4>
+                                        <p class="text-[11px] text-[#5C5549]">大車位好停，推車出入毫無窒礙、平穩順暢。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🏆</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">極高的長輩知名度</h4>
+                                        <p class="text-[11px] text-[#5C5549]">辦在「與玥樓」，親朋好友無一不曉，既體面又討喜。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-[#EAE3D2] pt-4">
+                                <h4 class="font-bold text-sm mb-2 text-[#2C2C2C]">📊 優缺點直白分析</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div class="text-emerald-700 bg-emerald-50/50 p-3 rounded-lg"><strong class="block mb-1">✔️ 優勢</strong> 名氣響亮人人都知、合菜與港點表現平均且出色、戶外合照效果驚艷。</div>
+                                    <div class="text-amber-700 bg-amber-50/50 p-3 rounded-lg"><strong class="block mb-1">⚠️ 注意</strong> 平日或假日人流多，大廳公共區域非常喧鬧；烤鴨大菜必須提前數天預訂。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pricing Card -->
+                    <div class="bg-[#4A4A4A] text-white p-8 rounded-2xl flex flex-col justify-between shadow-lg relative">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:12px_12px] rounded-2xl"></div>
+                        <div class="relative z-10">
+                            <h4 class="serif text-xl mb-6 border-b border-white/20 pb-2">預算方案參考</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">經典起桌桌席 (10位)</p>
+                                    <p class="text-2xl font-bold">NT$ 22,800 + 10%</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">豪華精緻桌席</p>
+                                    <p class="text-2xl font-bold">NT$ 26,800 - 32,800+</p>
+                                    <span class="text-[10px] opacity-75">* 含經典果木片皮鴨 (二吃)</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">經典個人套餐</p>
+                                    <p class="text-lg">NT$ 2,280 - 5,980 / 位</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('與玥樓頂級粵菜 - 台中市南屯區公益路二段783號 - 電話: (04) 2382-9128')" class="mt-8 py-3 bg-white text-gray-800 font-bold rounded-xl hover:bg-gray-100 transition shadow relative z-10 text-xs">複製聯繫電話與地址</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ming Juan Lou -->
+            <div id="content-mingjuan" class="space-y-8 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-8 rounded-2xl border border-[#EAE3D2] relative">
+                            <span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">2025米其林入選 ‧ 母嬰最高評分</span>
+                            <h3 class="serif text-2xl font-bold mb-4 text-[#B89047] flex items-center gap-2">
+                                <span>🤱</span> 明娟樓 ‧ 洲際五星與極致母嬰友善
+                            </h3>
+                            <p class="text-[#2C2C2C] leading-relaxed mb-6 text-sm">
+                                作為勤美洲際酒店的主力中餐廳，明娟樓憑藉細膩優雅的當代粵菜榮獲米其林指南肯定。對於剛生產完的媽媽而言，這裡在移動舒適與照料配套（擁有五星飯店規格的乾淨育嬰室與哺乳室、高質感獨立無障礙動線）上完全是天花板等級的體貼。
+                            </p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🤱</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">五星級洲際酒店哺乳室</h4>
+                                        <p class="text-[11px] text-[#5C5549]">備有沙發、溫奶器、完美私密隔音與極致衛浴配套。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">♿</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">百分之百全無障礙通道</h4>
+                                        <p class="text-[11px] text-[#5C5549]">推車直接從室內地下車庫上二樓，不怕吹風淋雨。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🌟</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">2025米其林入選光環</h4>
+                                        <p class="text-[11px] text-[#5C5549]">極具國際視野的優雅粵菜調味，深獲豪門長輩喜愛。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🍲</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">清鮮高湯溫潤滋補</h4>
+                                        <p class="text-[11px] text-[#5C5549]">注重少油少鹽與極鮮燉品，對媽媽腸胃完全無負擔。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-[#EAE3D2] pt-4">
+                                <h4 class="font-bold text-sm mb-2 text-[#2C2C2C]">📊 優缺點直白分析</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div class="text-emerald-700 bg-emerald-50/50 p-3 rounded-lg"><strong class="block mb-1">✔️ 優勢</strong> 飯店母嬰硬體極完美、服務訓練具國際五星水準、口味清爽無負擔。</div>
+                                    <div class="text-amber-700 bg-amber-50/50 p-3 rounded-lg"><strong class="block mb-1">⚠️ 注意</strong> 當代裝潢風格可能對於極度追求傳統「金碧輝煌」宮殿感的老一輩長輩來說偏現代。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pricing Card -->
+                    <div class="bg-[#8E795D] text-white p-8 rounded-2xl flex flex-col justify-between shadow-lg relative">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:12px_12px] rounded-2xl"></div>
+                        <div class="relative z-10">
+                            <h4 class="serif text-xl mb-6 border-b border-white/20 pb-2">預算方案參考</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">經典起桌桌席 (10位)</p>
+                                    <p class="text-2xl font-bold">NT$ 25,800 + 10%</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">豪華精緻桌席</p>
+                                    <p class="text-2xl font-bold">NT$ 31,800 - 48,800+</p>
+                                    <span class="text-[10px] opacity-75">* 含頂級燉湯、海鲜與精緻點心</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">經典個人套餐</p>
+                                    <p class="text-lg">NT$ 2,580 - 6,500 / 位</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('明娟樓 勤美洲際酒店 - 台中市西區館前路57號2樓 - 電話: (04) 2328-1234')" class="mt-8 py-3 bg-white text-[#8E795D] font-bold rounded-xl hover:bg-gray-100 transition shadow relative z-10 text-xs">複製聯繫電話與地址</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shan Yu -->
+            <div id="content-shanyu" class="space-y-8 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-8 rounded-2xl border border-[#EAE3D2] relative">
+                            <span class="absolute top-4 right-4 bg-amber-50 text-[#B89047] text-xs font-bold px-3 py-1 rounded-full">全包廂無散客私廚</span>
+                            <h3 class="serif text-2xl font-bold mb-4 text-[#B89047] flex items-center gap-2">
+                                <span>🌲</span> 山与 ‧ 頂級豪宅私廚招待所
+                            </h3>
+                            <p class="text-[#2C2C2C] leading-relaxed mb-6 text-sm">
+                                由星野餐飲集團斥資打造的極緻精品私廚，全店採預約制，並擁有全包廂（無散客開放區域）設計。許文光大師親自領軍主導，提供客製化、精雕細琢的大中華功夫老菜與精品粵菜。宛如私人豪宅或私人招待所般的安靜氛圍，讓滿月酒家宴在極度高雅、不受干擾的環境下進行。
+                            </p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🤐</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">純粹私密全包廂</h4>
+                                        <p class="text-[11px] text-[#5C5549]">環境清淨絕無外人，即使寶寶哭鬧、媽媽哺乳也毫無壓力。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🥢</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">許文光名廚功夫大菜</h4>
+                                        <p class="text-[11px] text-[#5C5549]">提供外面吃不到、作工繁複（如：仙鶴神針）的手工名菜。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">🤱</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">完美避退乳客製化</h4>
+                                        <p class="text-[11px] text-[#5C5549]">私廚型態可極為彈性地為媽媽特別替換產後避忌食材。</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#FDFCF7] rounded-xl border border-[#EAE3D2] flex items-start gap-3">
+                                    <span class="text-xl">💎</span>
+                                    <div>
+                                        <h4 class="font-bold text-xs text-[#2C2C2C] mb-1">富豪政商最愛首選</h4>
+                                        <p class="text-[11px] text-[#5C5549]">頂尖老饕的聚會之處，展現絕佳的珍稀品味。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-[#EAE3D2] pt-4">
+                                <h4 class="font-bold text-sm mb-2 text-[#2C2C2C]">📊 優缺點直白分析</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div class="text-emerald-700 bg-emerald-50/50 p-3 rounded-lg"><strong class="block mb-1">✔️ 優勢</strong> 隱私度與安靜感全市第一、菜色具有極致的稀缺獨特性、可深層客製化。</div>
+                                    <div class="text-amber-700 bg-amber-50/50 p-3 rounded-lg"><strong class="block mb-1">⚠️ 注意</strong> 採無菜單個人預約套餐為主、包廂總價低消依房型而有較高要求。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pricing Card -->
+                    <div class="bg-[#B5A18B] text-white p-8 rounded-2xl flex flex-col justify-between shadow-lg relative">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:12px_12px] rounded-2xl"></div>
+                        <div class="relative z-10">
+                            <h4 class="serif text-xl mb-6 border-b border-white/20 pb-2">預算方案參考</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">主要餐飲型態</p>
+                                    <p class="text-2xl font-bold">全預約制 ‧ 無菜單套餐</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">個人預算檔次 (每位)</p>
+                                    <p class="text-2xl font-bold">NT$ 3,280 - 9,800+</p>
+                                    <span class="text-[10px] opacity-75">* 常見經典款為 NT$ 4,500/位</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest mb-1">大包廂基本低消</p>
+                                    <p class="text-lg">約 NT$ 35,000 - 50,000 起</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('山与 中式料理 - 台中市西屯區市政路一段 - 敬請提前與星野餐飲客服聯繫預約')" class="mt-8 py-3 bg-white text-[#B5A18B] font-bold rounded-xl hover:bg-gray-100 transition shadow relative z-10 text-xs">複製預約與專屬諮詢資訊</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Logistics Support Section -->
+    <section class="max-w-4xl mx-auto px-6 py-16 text-center border-t border-[#EAE3D2]">
+        <h3 class="serif text-2xl font-bold mb-4 text-[#2C2C2C]">🌸 溫馨籌辦指南</h3>
+        <p class="text-[#5C5549] leading-loose mb-8 text-sm max-w-2xl mx-auto">
+            為了讓寶寶人生中第一個重要的筵席圓滿成功，建議提早 30 天進行包廂預約。若同行家人中有長輩，預訂時請記得跟主經理預留「附帶大沙發椅」的包廂，讓媽媽哺乳及安放推車時更加從容優雅。
+        </p>
+        <div class="flex justify-center space-x-6">
+            <div class="text-center px-4">
+                <span class="block text-3xl mb-1">📅</span>
+                <span class="text-xs font-bold text-[#5C5549]">提早30天訂位</span>
+            </div>
+            <div class="text-center px-4">
+                <span class="block text-3xl mb-1">🥘</span>
+                <span class="text-xs font-bold text-[#5C5549]">避開退乳食材</span>
+            </div>
+            <div class="text-center px-4">
+                <span class="block text-3xl mb-1">🤱</span>
+                <span class="text-xs font-bold text-[#5C5549]">預留推車動線</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white py-12 px-6 border-t border-[#EAE3D2] text-center text-gray-400 text-xs">
+        <p class="mb-2">© 2026 台中頂級滿月家宴評比系統 | 嚴選奢華與體貼之作</p>
+        <p class="serif italic text-[#B89047]">Celebrating Life's Most Precious Moments With Elegance</p>
+    </footer>
+
+    <!-- Clipboard Alert Message Box -->
+    <div id="toast-message" class="fixed bottom-6 right-6 bg-gray-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-2 z-50">
+        已成功複製到剪貼簿！
+    </div>
+
+    <script>
+        // Data for dynamic budget calculator
+        // Format: [Base minimum table cost for 10pax, extra per person or alternate pricing]
+        const pricingData = {
+            dingyue: { table_classic: 28800, table_luxury: 38800, individual_set: 2880 },
+            yuebar: { table_classic: 22800, table_luxury: 26800, individual_set: 2280 },
+            mingjuan: { table_classic: 25800, table_luxury: 31800, individual_set: 2580 },
+            shanyu: { table_classic: 35000, table_luxury: 45000, individual_set: 4500 } // Shan Yu is higher base set
+        };
+
+        function adjustGuests(amount) {
+            const input = document.getElementById('input-guests');
+            let val = parseInt(input.value) + amount;
+            if (val < 2) val = 2;
+            if (val > 100) val = 100;
+            input.value = val;
+            calculateBudget();
+        }
+
+        function calculateBudget() {
+            const guests = parseInt(document.getElementById('input-guests').value) || 10;
+            const style = document.getElementById('select-style').value;
+
+            // Calculation helper
+            function getEst(key) {
+                const rates = pricingData[key];
+                let cost = 0;
+                
+                if (style === 'individual_set') {
+                    // Per person set budget
+                    cost = rates.individual_set * guests;
+                } else {
+                    // Table style: Calculate how many tables of 10 are needed
+                    const numTables = Math.ceil(guests / 10);
+                    cost = rates[style] * numTables;
+                }
+                
+                // Add 10% service charge
+                const total = Math.round(cost * 1.1);
+                return 'NT$ ' + total.toLocaleString();
+            }
+
+            document.getElementById('calc-dingyue').innerText = getEst('dingyue');
+            document.getElementById('calc-yuebar').innerText = getEst('yuebar');
+            document.getElementById('calc-mingjuan').innerText = getEst('mingjuan');
+            document.getElementById('calc-shanyu').innerText = getEst('shanyu');
+        }
+
+        function calculateMomTip() {
+            const momStyle = document.getElementById('select-mom').value;
+            const tipText = document.getElementById('mom-tip-text');
+            
+            if (momStyle === 'lactation') {
+                tipText.innerText = "媽媽正在哺乳中：頂粵吉品、山与及與玥樓的服務團隊均可調整大菜食材，避免韭菜、人參、麥芽，並提供不影響母乳的溫和補品。";
+            } else if (momStyle === 'postpartum') {
+                tipText.innerText = "媽媽仍在月子中：明娟樓提供多種無添加酒精、微涼海鮮的溫潤湯煲；頂粵吉品的純熟燉品也是調養身體的絕佳熱食。";
+            } else {
+                tipText.innerText = "在確定桌菜菜單時，上述餐廳皆可為媽媽提供客製化的「位上個人湯品及甜品」替換，建議在訂席時主動提出。";
+            }
+        }
+
+        // Clip board helper
+        function copyToClipboard(text) {
+            // Standard fallback using textarea copy
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            // Toast Alert
+            const toast = document.getElementById('toast-message');
+            toast.innerText = "已成功複製餐廳資訊與訂位號碼！";
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2500);
+        }
+
+        // Radar Chart (Dimension Scores)
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['奢華排場', '知名度', '母嬰友善', '私密隱私', '菜色檔次'],
+                datasets: [
+                    {
+                        label: '頂粵吉品',
+                        data: [10, 8.5, 8, 9.5, 9.5],
+                        borderColor: '#B89047',
+                        backgroundColor: 'rgba(184, 144, 71, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#B89047'
+                    },
+                    {
+                        label: '與玥樓',
+                        data: [8.5, 10, 8, 7.5, 9],
+                        borderColor: '#4A4A4A',
+                        backgroundColor: 'rgba(74, 74, 74, 0.05)',
+                        borderWidth: 1.5,
+                        pointBackgroundColor: '#4A4A4A'
+                    },
+                    {
+                        label: '明娟樓',
+                        data: [8, 8, 10, 8, 9],
+                        borderColor: '#8E795D',
+                        backgroundColor: 'rgba(142, 121, 93, 0.05)',
+                        borderWidth: 1.5,
+                        pointBackgroundColor: '#8E795D'
+                    },
+                    {
+                        label: '山与 (私廚)',
+                        data: [9, 8, 7.5, 10, 10],
+                        borderColor: '#B5A18B',
+                        backgroundColor: 'rgba(181, 161, 139, 0.05)',
+                        borderWidth: 1.5,
+                        pointBackgroundColor: '#B5A18B'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { display: true, color: '#EAE3D2' },
+                        grid: { color: '#EAE3D2' },
+                        suggestedMin: 6,
+                        suggestedMax: 10,
+                        ticks: { stepSize: 1, color: '#5C5549', font: { size: 9 } },
+                        pointLabels: { font: { size: 12, weight: 'bold', family: 'Noto Sans TC' }, color: '#2C2C2C' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, font: { family: 'Noto Sans TC', size: 11 } }
+                    },
+                    title: {
+                        display: true,
+                        text: '核心指標維度分析 (橫向深度對比)',
+                        font: { size: 14, weight: 'bold', family: 'Noto Serif TC' },
+                        color: '#2C2C2C'
+                    }
+                }
+            }
+        });
+
+        // Price Range Chart
+        const priceCtx = document.getElementById('priceRangeChart').getContext('2d');
+        const priceChart = new Chart(priceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['頂粵吉品', '與玥樓', '明娟樓', '山与 (私廚)*'],
+                datasets: [
+                    {
+                        label: '基本桌席起跳價',
+                        data: [28800, 22800, 25800, 35000],
+                        backgroundColor: '#B5A18B',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: '高檔精緻桌席價',
+                        data: [58800, 32800, 48800, 50000],
+                        backgroundColor: '#B89047',
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { family: 'Noto Sans TC' } } },
+                    y: { 
+                        grid: { color: '#F0EBE0' },
+                        ticks: { 
+                            callback: function(value) { return 'NT$ ' + value.toLocaleString(); },
+                            font: { family: 'Noto Sans TC', size: 10 }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Noto Sans TC' } } },
+                    title: {
+                        display: true,
+                        text: '經典桌席預算區間對比 (十人計)',
+                        font: { size: 14, weight: 'bold', family: 'Noto Serif TC' },
+                        color: '#2C2C2C'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': NT$ ' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Tab Switch Logic
+        function showTab(tabId) {
+            // Hide all
+            const contents = document.querySelectorAll('#tab-contents > div');
+            contents.forEach(c => c.classList.add('hidden'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('#explorer button');
+            buttons.forEach(b => b.classList.remove('tab-active'));
+
+            // Show active
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('tab-active');
+        }
+
+        // Scroll helper
+        function scrollToExplorer() {
+            document.getElementById('explorer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Elder Filter Decision Logic
+        function applyFilter(criterion) {
+            const resultBox = document.getElementById('filter-result');
+            const resultText = document.getElementById('recommended-restaurant');
+            
+            resultBox.classList.remove('hidden');
+            
+            let recommended = "";
+            let tabToSelect = "dingyue";
+
+            switch(criterion) {
+                case 'luxury':
+                    recommended = "【頂粵吉品 (七期)】：獨立歐式宮殿外觀，一進門即是水晶吊燈、挑高大廳與白玉大理石，給長輩極致體面的震撼；19間 VIP 大包廂配合專屬電梯與一對一管家分菜，尊榮感當之無愧。";
+                    tabToSelect = "dingyue";
+                    break;
+                case 'fame':
+                    recommended = "【與玥樓 (單元二)】：結合清水模現代建築與大片落羽松庭園，是台中名氣最大、最廣為人知的指標粵菜。其絕美中庭是全家族拍攝滿月大合照的最佳景致。";
+                    tabToSelect = "yuebar";
+                    break;
+                case 'friendly':
+                    recommended = "【明娟樓 (勤美洲際 2F)】：擁有極致頂規的五星級飯店無障礙、完美獨立哺乳室配套，並提供當代精緻少鹽高湯燉湯。如果您最疼惜剛出月子的媽媽與寶寶的照料便利性，這是不二之選。";
+                    tabToSelect = "mingjuan";
+                    break;
+                case 'privacy':
+                    recommended = "【山与 (七期)】：專為頂端客群設計的預約制全包廂私廚會所，全店「無對外散客大廳」，隱密性高居全市第一。許文光師傅主理客製化菜單，可依媽媽產後情況完全量身微調。";
+                    tabToSelect = "shanyu";
+                    break;
+            }
+            
+            resultText.innerText = recommended;
+            showTab(tabToSelect);
+        }
+
+        // Initialize state
+        window.onload = function() {
+            calculateBudget();
+        }
+    </script>
+</body>
+</html>
